@@ -1,0 +1,7 @@
+# Static site: no build step required. These settings override the
+# base directory ("build") and command ("make all") set in the Netlify UI,
+# which don't exist in this repository.
+[build]
+  base = ""
+  publish = "."
+  command = ""
