@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Data Tugas (Minggu 1 - 14)
     const tasks = Array.from({ length: 14 }, (_, i) => ({
         week: i + 1,
-        title: i === 13 ? 'Algoritma Deep Learning' : `Tugas Minggu-${i + 1}`,
-        description: i === 13 
+        title: i === 14 ? 'Algoritma Deep Learning' : `Tugas Minggu-${i + 1}`,
+        description: i === 14 
             ? 'Tugas Dalam Bentuk PDF' 
             : `Tugas Dalam Bentuk PDF.`,
         link: `minggu-${String(i + 1).padStart(2, '0')}/index.html`,
