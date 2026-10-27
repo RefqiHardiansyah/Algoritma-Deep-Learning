@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // PENTING: Ganti angka 3 di bawah ini dengan minggu tugas yang sudah Anda selesaikan
         // Jika Anda sudah mengerjakan sampai minggu 4, ubah menjadi "i < 4", dst.
-        status: i < 2 ? 'Selesai' : 'Belum Tersedia'
+        status: [1, 2, 4].includes(i + 1) ? 'Selesai' : 'Belum Tersedia'
     }));
 
     // Fungsi Render Card
