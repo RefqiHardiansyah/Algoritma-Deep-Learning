@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Minggu &mdash; Refqi Hardiansyah</title>
+    <meta name="description"
+        content="Pembaca laporan tugas mata kuliah Algoritma Deep Learning - Refqi Hardiansyah, 4IA08, Universitas Gunadarma.">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="robots" content="noindex">
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='44' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EDL%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('adl-theme');
+                if (!theme) {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.dataset.theme = theme;
+            } catch (e) { }
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a class="skip-link" href="#pdfCard">Lewati ke pembaca PDF</a>
+
+    <main class="viewer" id="main">
+        <div class="pdf-header-card">
+            <div class="pdf-title-area">
+                <nav class="breadcrumb" aria-label="Breadcrumb">
+                    <a href="index.html">Dashboard</a>
+                    <span aria-hidden="true">/</span>
+                    <span id="crumbWeek">Minggu</span>
+                </nav>
+                <h1 id="weekTitle">Memuat tugas&hellip;</h1>
+                <p>Mata Kuliah Algoritma Deep Learning</p>
+            </div>
+
+            <div class="pdf-actions">
+                <button class="btn btn-ghost btn-icon" id="themeToggle" type="button" aria-pressed="false"
+                    aria-label="Aktifkan tema gelap">
+                    <span class="theme-icon" aria-hidden="true">&#127769;</span>
+                </button>
+                <a href="index.html" class="btn btn-ghost">&larr; Kembali</a>
+                <a href="#" class="btn btn-ghost" id="openBtn" target="_blank" rel="noopener">Buka tab baru</a>
+                <a href="#" class="btn btn-primary" id="downloadBtn" download>Unduh PDF</a>
+            </div>
+        </div>
+
+        <div class="pdf-embed-card" id="pdfCard">
+            <div class="pdf-embed-wrapper">
+                <div class="pdf-loading" id="pdfLoading">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span>Memuat laporan&hellip;</span>
+                </div>
+                <iframe id="pdfFrame" title="Pembaca PDF tugas" hidden></iframe>
+            </div>
+            <p class="pdf-hint">PDF tidak muncul di perangkat ini? Gunakan tombol
+                <strong>Buka tab baru</strong> atau <strong>Unduh PDF</strong>.</p>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden></div>
+
+        <noscript>
+            <div class="empty-state">
+                <h2>JavaScript diperlukan</h2>
+                <p>Aktifkan JavaScript untuk menampilkan laporan, atau kembali ke
+                    <a href="index.html">dashboard</a>.</p>
+            </div>
+        </noscript>
+    </main>
+
+    <footer class="viewer-footer">
+        <p>&copy; 2026 Refqi Hardiansyah &middot; Algoritma Deep Learning</p>
+    </footer>
+
+    <script src="data/tugas.js"></script>
+    <script src="theme.js"></script>
+    <script src="minggu.js"></script>
+</body>
+
+</html>

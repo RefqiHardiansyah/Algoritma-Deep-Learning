@@ -1,40 +1,116 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Tugas Algoritma Deep Learning - Refqi Hardiansyah</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="description"
+        content="Kumpulan laporan tugas mata kuliah Algoritma Deep Learning oleh Refqi Hardiansyah (51423263), Kelas 4IA08, Universitas Gunadarma.">
+    <meta name="theme-color" content="#4f46e5">
+    <meta property="og:title" content="Dashboard Tugas Algoritma Deep Learning">
+    <meta property="og:description"
+        content="Kumpulan laporan tugas mata kuliah Algoritma Deep Learning - Refqi Hardiansyah, 4IA08, Universitas Gunadarma.">
+    <meta property="og:type" content="website">
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='44' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EDL%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('adl-theme');
+                if (!theme) {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.dataset.theme = theme;
+            } catch (e) { }
+        })();
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <a class="skip-link" href="#main">Lewati ke daftar tugas</a>
+
     <header class="hero">
-        <div class="container">
+        <div class="container hero-inner">
+            <div class="hero-top">
+                <span class="hero-eyebrow">Algoritma Deep Learning &middot; 4IA08</span>
+                <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"
+                    aria-label="Aktifkan tema gelap">
+                    <span class="theme-icon" aria-hidden="true">&#127769;</span>
+                </button>
+            </div>
+
             <h1>Algoritma Deep Learning</h1>
-            <p class="subtitle">Refqi Hardiansyah | 51423263 | 4IA08 | Universitas Gunadarma</p>
+            <p class="subtitle">Kumpulan laporan tugas mingguan</p>
+
+            <ul class="identity">
+                <li>Refqi Hardiansyah</li>
+                <li>51423263</li>
+                <li>4IA08</li>
+                <li>Universitas Gunadarma</li>
+            </ul>
+
+            <div class="progress-block">
+                <div class="progress-meta">
+                    <span>Progres pengumpulan</span>
+                    <strong id="progressLabel">0 dari 14 tugas selesai</strong>
+                </div>
+                <div class="progress-track" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="14"
+                    aria-valuenow="0" aria-label="Progres pengumpulan tugas">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Cari tugas minggu ke-...">
+                <label class="sr-only" for="searchInput">Cari tugas berdasarkan minggu atau topik</label>
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-3.5-3.5"></path>
+                </svg>
+                <input id="searchInput" type="search" placeholder="Cari minggu atau topik&hellip;" autocomplete="off"
+                    spellcheck="false">
+                <button class="search-clear" id="searchClear" type="button" aria-label="Hapus pencarian"
+                    hidden>&#10005;</button>
             </div>
         </div>
     </header>
 
-    <main class="container">
-        <section class="dashboard-stats">
+    <main class="container" id="main">
+        <section class="dashboard-stats" aria-label="Ringkasan progres tugas">
             <div class="stat-card">
                 <h3>Total Tugas</h3>
-                <p>14 Minggu</p>
+                <p class="stat-value" id="statTotal">14</p>
+            </div>
+            <div class="stat-card">
+                <h3>Selesai</h3>
+                <p class="stat-value" id="statDone">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Progres</h3>
+                <p class="stat-value" id="statProgress">0%</p>
             </div>
         </section>
 
-        <section class="grid-container" id="taskGrid">
-            <!-- Cards akan dibuat oleh JavaScript -->
+        <p class="result-info" id="resultInfo" role="status" aria-live="polite"></p>
+
+        <section class="grid-container" id="taskGrid" aria-label="Daftar tugas mingguan">
+            <!-- Kartu dibuat oleh script.js -->
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Refqi Hardiansyah. Dibuat untuk tugas mata kuliah Algoritma Deep Learning.</p>
+    <footer class="site-footer">
+        <p>&copy; 2026 Refqi Hardiansyah &middot; Dibuat untuk tugas mata kuliah Algoritma Deep Learning.</p>
     </footer>
 
+    <script src="data/tugas.js"></script>
+    <script src="theme.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

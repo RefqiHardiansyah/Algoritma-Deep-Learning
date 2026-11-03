@@ -1,7 +1,20 @@
-# Static site: no build step required. These settings override the
-# base directory ("build") and command ("make all") set in the Netlify UI,
-# which don't exist in this repository.
+# Static site: tidak butuh build step. Pengaturan ini menimpa nilai
+# base directory ("build") dan command ("make all") dari dashboard Netlify
+# yang tidak ada di repository ini.
 [build]
   base = ""
   publish = "."
   command = ""
+
+# Link lama seperti /minggu-04/ atau /minggu-04/index.html tetap hidup
+# dan diarahkan ke viewer dinamis. Aturan ini tidak menyentuh file PDF,
+# karena hanya cocok untuk path yang berakhiran "/" atau "/index.html".
+[[redirects]]
+  from = "/minggu-:w/index.html"
+  to = "/minggu.html?w=:w"
+  status = 200
+
+[[redirects]]
+  from = "/minggu-:w/"
+  to = "/minggu.html?w=:w"
+  status = 200
