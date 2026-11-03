@@ -5,6 +5,25 @@
              5) kartu  6) viewer  7) utilitas  8) responsif
    ============================================================ */
 
+/* ---------- 0. Font (self-hosted, variable 400–800) ---------- */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('fonts/inter-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src: url('fonts/inter-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ---------- 1. Design tokens ---------- */
 :root {
     color-scheme: light;
@@ -430,6 +449,88 @@ button {
     display: none;
 }
 
+/* Filter status & urutan */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+}
+
+.chip {
+    min-height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .2s var(--ease), color .2s var(--ease);
+}
+
+.chip:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.chip.is-active {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+
+.chip:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+.sort-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text-soft);
+    font: inherit;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+    transition: border-color .2s var(--ease), color .2s var(--ease);
+}
+
+.sort-toggle:hover {
+    border-color: var(--brand);
+    color: var(--brand-strong);
+}
+
+.sort-toggle:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+.sort-icon {
+    font-size: .9rem;
+}
+
 /* ---------- 5. Kartu tugas ---------- */
 .grid-container {
     display: grid;
@@ -476,6 +577,7 @@ button {
     height: 3px;
     background: linear-gradient(90deg, var(--brand), var(--accent));
     opacity: 0;
+    pointer-events: none;
     transition: opacity .3s var(--ease);
 }
 
@@ -483,11 +585,36 @@ button {
     opacity: 1;
 }
 
+.card.is-done {
+    cursor: pointer;
+}
+
 .card.is-done:hover,
-.card.is-done:focus-visible {
+.card.is-done:focus-visible,
+.card.is-done:focus-within {
     transform: translateY(-6px);
     border-color: var(--brand);
     box-shadow: var(--shadow-3);
+}
+
+/* Tautan utama menutupi seluruh kartu (stretched link), sehingga teks
+   di dalamnya tetap bisa diklik dan tombol unduh tetap terpisah. */
+.card-hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.card-hit:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: -2px;
+}
+
+.card.is-done .card-top,
+.card.is-done .card-cta,
+.card-footer .arrow {
+    pointer-events: none;
 }
 
 .card.is-locked {
@@ -565,7 +692,8 @@ button {
 .card-footer {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: space-between;
+    gap: 8px;
     font-size: .86rem;
     font-weight: 700;
     color: var(--brand-strong);
@@ -581,6 +709,33 @@ button {
 
 .card.is-locked .card-footer {
     color: var(--muted);
+}
+
+.card-download {
+    position: relative;
+    z-index: 2;
+    padding: 4px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    color: var(--text-soft);
+    font-size: .72rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    pointer-events: auto;
+    transition: border-color .2s var(--ease), color .2s var(--ease), background-color .2s var(--ease);
+}
+
+.card-download:hover {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+}
+
+.card-download:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
 }
 
 /* Empty state (hasil pencarian / minggu kosong) */
@@ -1159,9 +1314,53 @@ button {
     font-size: .92em;
 }
 
+.admin-note kbd {
+    padding: 1px 5px;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--text-soft);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .74rem;
+}
+
+.orphan-panel {
+    margin-top: 18px;
+}
+
+.orphan-note {
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.orphan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.orphan-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+}
+
+.orphan-item .file-name {
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .admin-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
     gap: 18px;
     margin-top: 18px;
     align-items: start;
@@ -1188,6 +1387,12 @@ button {
     font-size: .94rem;
 }
 
+.panel-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .panel-body {
     padding: 16px;
 }
@@ -1205,15 +1410,15 @@ button {
 }
 
 .admin-table th:nth-child(1) {
-    width: 88px;
+    width: 84px;
 }
 
 .admin-table th:nth-child(3) {
-    width: 118px;
+    width: 108px;
 }
 
 .admin-table th:nth-child(4) {
-    width: 132px;
+    width: 178px;
 }
 
 .admin-table th,
@@ -1300,6 +1505,7 @@ button {
 
 .row-actions {
     display: flex;
+    flex-wrap: nowrap;
     gap: 6px;
 }
 
@@ -1496,5 +1702,19 @@ button {
         overflow: visible;
         white-space: normal;
         overflow-wrap: anywhere;
+    }
+
+    .panel-head {
+        flex-wrap: wrap;
+    }
+
+    .panel-tools {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .orphan-item {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

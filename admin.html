@@ -9,10 +9,6 @@
     <meta name="theme-color" content="#4f46e5">
     <link rel="icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='44' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EDL%3C/text%3E%3C/svg%3E">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
     <script>
         (function () {
             try {
@@ -24,6 +20,7 @@
             } catch (e) { }
         })();
     </script>
+    <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -65,6 +62,7 @@
 
             <div class="admin-tools">
                 <span class="status-chip" id="folderStatus">Folder belum terhubung</span>
+                <span class="status-chip warn" id="dirtyChip" hidden>Belum disimpan</span>
                 <button class="btn btn-ghost" type="button" id="connectBtn">Pilih folder proyek</button>
                 <button class="btn btn-ghost btn-icon" type="button" id="themeToggle" aria-pressed="false"
                     aria-label="Aktifkan tema gelap">
@@ -76,8 +74,9 @@
 
         <p class="admin-note" id="folderNote">
             Pilih folder proyek (folder yang berisi <code>pdf/</code> dan <code>data/</code>) agar PDF dan
-            <code>data/tugas.js</code> bisa ditulis otomatis. Jika browser menolak memilih folder saat file dibuka
-            langsung, jalankan <code>python -m http.server</code> di folder proyek lalu buka
+            <code>data/tugas.js</code> bisa ditulis otomatis. Tekan <kbd>Ctrl</kbd> + <kbd>S</kbd> untuk menyimpan
+            data. Jika browser menolak memilih folder saat file dibuka langsung, jalankan
+            <code>python -m http.server</code> di folder proyek lalu buka
             <code>http://localhost:8000/admin.html</code>.
         </p>
 
@@ -85,7 +84,11 @@
             <section class="panel">
                 <div class="panel-head">
                     <h2>Data tugas</h2>
-                    <span class="status-chip" id="statsChip">0 entri</span>
+                    <div class="panel-tools">
+                        <span class="status-chip" id="statsChip">0 entri</span>
+                        <button class="btn btn-ghost btn-sm" type="button" id="scanBtn"
+                            title="Cari PDF di folder pdf/ yang tidak dipakai data tugas">Berkas yatim</button>
+                    </div>
                 </div>
                 <div class="table-scroll">
                     <table class="admin-table">
@@ -141,6 +144,17 @@
                 </form>
             </section>
         </div>
+
+        <section class="panel orphan-panel" id="orphanPanel" hidden>
+            <div class="panel-head">
+                <h2>Berkas yatim di pdf/</h2>
+                <span class="status-chip" id="orphanCount">0 berkas</span>
+            </div>
+            <div class="panel-body">
+                <p class="orphan-note" id="orphanNote"></p>
+                <ul class="orphan-list" id="orphanList"></ul>
+            </div>
+        </section>
 
         <div class="admin-savebar">
             <span class="hint" id="saveHint" role="status" aria-live="polite">

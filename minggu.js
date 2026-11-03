@@ -14,6 +14,14 @@
 
     const byId = (id) => document.getElementById(id);
 
+    const esc = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+
     const pdfCard = byId('pdfCard');
     const pdfFrame = byId('pdfFrame');
     const pdfLoading = byId('pdfLoading');
@@ -22,6 +30,10 @@
     const crumbWeek = byId('crumbWeek');
     const downloadBtn = byId('downloadBtn');
     const openBtn = byId('openBtn');
+    const prevBtn = byId('prevBtn');
+    const nextBtn = byId('nextBtn');
+
+    const isHttp = /^https?:$/.test(window.location.protocol);
 
     const showEmpty = (title, message, emoji) => {
         document.title = `${title} - Algoritma Deep Learning`;
@@ -49,50 +61,108 @@
         }
     };
 
-    if (!task) {
-        showEmpty('Minggu tidak ditemukan',
-            'Alamat halaman ini tidak cocok dengan data tugas yang tersedia.',
-            '&#129517;');
-        return;
-    }
+    // Cek keberadaan berkas sebelum memuat iframe, supaya pengguna tidak
+    // melihat halaman error mentah dari browser saat PDF hilang.
+    const pdfAvailable = async (url) => {
+        if (!isHttp) return true;
 
-    const label = task.judul || `Tugas Minggu ${task.week}`;
-    document.title = `Minggu ${task.week} - ${label} | Algoritma Deep Learning`;
+        try {
+            const response = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+            if (response.status === 405 || response.status === 501) return true;
+            return response.ok;
+        } catch (error) {
+            return true; // jaringan bermasalah: biarkan iframe mencoba
+        }
+    };
 
-    if (weekTitle) weekTitle.textContent = `Minggu ${task.week} - ${label}`;
-    if (crumbWeek) crumbWeek.textContent = `Minggu ${task.week}`;
+    const setWeekNav = () => {
+        const ordered = source
+            .filter((item) => item.pdf)
+            .sort((a, b) => a.week - b.week);
+        const position = ordered.findIndex((item) => item.week === task.week);
 
-    if (!task.pdf) {
-        showEmpty(`Minggu ${task.week} belum tersedia`,
-            'Laporan untuk minggu ini belum diunggah. Silakan periksa kembali nanti.',
-            '&#128196;');
-        return;
-    }
+        const apply = (button, target, direction) => {
+            if (!button || !target) return;
 
-    // Semua PDF berada di satu folder: pdf/
-    const src = `pdf/${encodeURIComponent(task.pdf)}`;
+            button.href = `minggu.html?w=${target.week}`;
+            button.title = `Minggu ${target.week} - ${target.judul || 'Tugas'}`;
+            button.setAttribute('aria-label', `${direction}: minggu ${target.week}`);
+            button.hidden = false;
+        };
 
-    if (pdfFrame) {
-        pdfFrame.addEventListener('load', () => {
-            if (pdfLoading) pdfLoading.hidden = true;
-        }, { once: true });
+        apply(prevBtn, position > 0 ? ordered[position - 1] : null, 'Tugas sebelumnya');
+        apply(nextBtn,
+            position >= 0 && position < ordered.length - 1 ? ordered[position + 1] : null,
+            'Tugas berikutnya');
+    };
 
-        pdfFrame.title = `Pembaca PDF ${label}`;
-        pdfFrame.hidden = false;
-        pdfFrame.src = `${src}#toolbar=0&navpanes=0&view=FitH`;
+    const render = async () => {
+        if (!task) {
+            showEmpty('Minggu tidak ditemukan',
+                'Alamat halaman ini tidak cocok dengan data tugas yang tersedia.',
+                '&#129517;');
+            return;
+        }
 
-        // Jaring pengaman: jangan biarkan spinner berputar selamanya.
-        window.setTimeout(() => {
-            if (pdfLoading) pdfLoading.hidden = true;
-        }, 6000);
-    }
+        const label = task.judul || `Tugas Minggu ${task.week}`;
+        document.title = `Minggu ${task.week} - ${label} | Algoritma Deep Learning`;
 
-    if (downloadBtn) {
-        downloadBtn.href = src;
-        downloadBtn.setAttribute('download', task.pdf);
-    }
+        if (weekTitle) weekTitle.textContent = `Minggu ${task.week} - ${label}`;
+        if (crumbWeek) crumbWeek.textContent = `Minggu ${task.week}`;
 
-    if (openBtn) {
-        openBtn.href = src;
-    }
+        if (!task.pdf) {
+            showEmpty(`Minggu ${task.week} belum tersedia`,
+                'Laporan untuk minggu ini belum diunggah. Silakan periksa kembali nanti.',
+                '&#128196;');
+            return;
+        }
+
+        // Navigasi minggu tetap tersedia meskipun berkas PDF minggu ini hilang.
+        setWeekNav();
+
+        document.addEventListener('keydown', (event) => {
+            if (event.altKey || event.ctrlKey || event.metaKey) return;
+            if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+
+            if (event.key === 'ArrowLeft' && prevBtn && !prevBtn.hidden) prevBtn.click();
+            if (event.key === 'ArrowRight' && nextBtn && !nextBtn.hidden) nextBtn.click();
+        });
+
+        // Semua PDF berada di satu folder: pdf/
+        const src = `pdf/${encodeURIComponent(task.pdf)}`;
+
+        if (!(await pdfAvailable(src))) {
+            showEmpty('Berkas laporan tidak ditemukan',
+                `Berkas <code>${esc(task.pdf)}</code> tidak ada di folder <code>pdf/</code>. ` +
+                'Silakan hubungi pemilik situs atau kembali ke dashboard.',
+                '&#128196;');
+            return;
+        }
+
+        if (pdfFrame) {
+            pdfFrame.addEventListener('load', () => {
+                if (pdfLoading) pdfLoading.hidden = true;
+            }, { once: true });
+
+            pdfFrame.title = `Pembaca PDF ${label}`;
+            pdfFrame.hidden = false;
+            pdfFrame.src = `${src}#toolbar=0&navpanes=0&view=FitH`;
+
+            // Jaring pengaman: jangan biarkan spinner berputar selamanya.
+            window.setTimeout(() => {
+                if (pdfLoading) pdfLoading.hidden = true;
+            }, 6000);
+        }
+
+        if (downloadBtn) {
+            downloadBtn.href = src;
+            downloadBtn.setAttribute('download', task.pdf);
+        }
+
+        if (openBtn) {
+            openBtn.href = src;
+        }
+    };
+
+    render();
 })();

@@ -14,10 +14,6 @@
     <meta property="og:type" content="website">
     <link rel="icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='44' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EDL%3C/text%3E%3C/svg%3E">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
     <script>
         (function () {
             try {
@@ -29,6 +25,7 @@
             } catch (e) { }
         })();
     </script>
+    <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -96,6 +93,18 @@
                 <p class="stat-value" id="statProgress">0%</p>
             </div>
         </section>
+
+        <div class="filter-bar">
+            <div class="filter-chips" role="group" aria-label="Filter daftar tugas">
+                <button class="chip is-active" type="button" data-filter="all" aria-pressed="true">Semua</button>
+                <button class="chip" type="button" data-filter="done" aria-pressed="false">Selesai</button>
+                <button class="chip" type="button" data-filter="pending" aria-pressed="false">Belum tersedia</button>
+            </div>
+            <button class="sort-toggle" type="button" id="sortToggle" aria-pressed="false">
+                <span class="sort-icon" aria-hidden="true">&#8593;</span>
+                <span id="sortLabel">Terlama dulu</span>
+            </button>
+        </div>
 
         <p class="result-info" id="resultInfo" role="status" aria-live="polite"></p>
 

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Panel admin hanya untuk pemakaian lokal.
+Disallow: /admin.html
+Disallow: /admin
+Disallow: /admin/
+
+# Berkas sumber dan cadangan data tidak perlu diindeks.
+Disallow: /sumber/
+Disallow: /data/tugas.backup.js

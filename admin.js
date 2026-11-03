@@ -1,7 +1,7 @@
 /* ============================================================
    Panel admin lokal.
 
-   - Login dengan hash SHA-256 + salt (kata sandi tidak disimpan).
+   - Login dengan PBKDF2-SHA256 + salt (kata sandi tidak disimpan).
    - Data dibaca dari data/tugas.js lalu bisa ditambah / diedit / dihapus.
    - PDF diseret ke formulir, otomatis dinamai minggu-XX-topik.pdf,
      lalu ditulis ke folder pdf/ lewat File System Access API.
@@ -16,8 +16,11 @@
     const AUTH = {
         user: 'tugasADL123456789',
         salt: '52a2509a3c44b9ce3b6df0773d568ebd',
-        hash: '1ed773b0f2da119f21fa8dcd778efa71beec0e105434cadcec6724f1326f4def'
+        iterations: 210000,
+        hash: '8333d331e4364b8b17a9433ced2a166203bccc87c61320211053eac821371f6b'
     };
+
+    const BASE_TITLE = 'Panel Admin - Algoritma Deep Learning';
 
     const SESSION_KEY = 'adl-admin-session';
     const ATTEMPT_KEY = 'adl-admin-attempts';
@@ -69,13 +72,37 @@
 
     const supportsFS = () => typeof window.showDirectoryPicker === 'function';
 
-    async function sha256Hex(text) {
+    function hexToBytes(hex) {
+        const bytes = new Uint8Array(hex.length / 2);
+        for (let index = 0; index < bytes.length; index += 1) {
+            bytes[index] = Number.parseInt(hex.slice(index * 2, index * 2 + 2), 16);
+        }
+        return bytes;
+    }
+
+    const toHex = (buffer) => Array.from(new Uint8Array(buffer))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+
+    async function deriveHash(password) {
         if (!window.crypto || !window.crypto.subtle) return null;
-        const bytes = new TextEncoder().encode(text);
-        const digest = await window.crypto.subtle.digest('SHA-256', bytes);
-        return Array.from(new Uint8Array(digest))
-            .map((byte) => byte.toString(16).padStart(2, '0'))
-            .join('');
+
+        const key = await window.crypto.subtle.importKey(
+            'raw',
+            new TextEncoder().encode(password),
+            'PBKDF2',
+            false,
+            ['deriveBits']
+        );
+
+        const bits = await window.crypto.subtle.deriveBits({
+            name: 'PBKDF2',
+            salt: hexToBytes(AUTH.salt),
+            iterations: AUTH.iterations,
+            hash: 'SHA-256'
+        }, key, 256);
+
+        return toHex(bits);
     }
 
     function formatSize(bytes) {
@@ -157,6 +184,8 @@
     let dataDir = null;
     let initialized = false;
     let lockTimer = null;
+    let dirty = false;
+    let orphanFiles = [];
 
     const fileStatus = new Map();
 
@@ -184,6 +213,12 @@
     const folderStatus = $('folderStatus');
     const folderNote = $('folderNote');
     const saveHint = $('saveHint');
+    const dirtyChip = $('dirtyChip');
+    const scanBtn = $('scanBtn');
+    const orphanPanel = $('orphanPanel');
+    const orphanCount = $('orphanCount');
+    const orphanNote = $('orphanNote');
+    const orphanList = $('orphanList');
 
     /* ============================================================
        AUTH
@@ -253,7 +288,7 @@
             return;
         }
 
-        const hash = await sha256Hex(`${AUTH.salt}:${pass}`);
+        const hash = await deriveHash(pass);
 
         if (hash === null) {
             setLoginError('Browser ini tidak mendukung verifikasi sandi. Gunakan Chrome atau Edge terbaru.');
@@ -310,7 +345,14 @@
 
         renderTable();
         resetForm();
+        setDirty(false);
         restoreFolder();
+    }
+
+    function setDirty(value) {
+        dirty = Boolean(value);
+        document.title = dirty ? `\u25CF ${BASE_TITLE}` : BASE_TITLE;
+        if (dirtyChip) dirtyChip.hidden = !dirty;
     }
 
     function setFolderStatus(state, text) {
@@ -466,6 +508,7 @@
                     <td><span class="file-state ${state}" title="${state === 'unknown' ? 'Hubungkan folder proyek untuk memeriksa berkas' : ''}">${stateText}</span></td>
                     <td>
                         <div class="row-actions">
+                            ${entry.pdf ? `<a class="btn btn-ghost btn-sm" href="pdf/${encodeURIComponent(entry.pdf)}" target="_blank" rel="noopener">Lihat</a>` : ''}
                             <button class="btn btn-ghost btn-sm" type="button" data-action="edit" data-week="${entry.week}">Edit</button>
                             <button class="btn btn-danger btn-sm" type="button" data-action="delete" data-week="${entry.week}">Hapus</button>
                         </div>
@@ -508,10 +551,76 @@
 
         entries = entries.filter((item) => item.week !== week);
         fileStatus.delete(week);
+        hideOrphans();
         if (editingWeek === week) resetForm();
 
         renderTable();
+        setDirty(true);
         notify(`Entri minggu ${week} dihapus dari daftar. Simpan data/tugas.js untuk menerapkan.`);
+    }
+
+    /* ============================================================
+       BERKAS YATIM
+       ============================================================ */
+
+    function hideOrphans() {
+        orphanFiles = [];
+        if (orphanPanel) orphanPanel.hidden = true;
+        if (orphanList) orphanList.innerHTML = '';
+    }
+
+    function renderOrphans() {
+        orphanPanel.hidden = false;
+        orphanCount.textContent = `${orphanFiles.length} berkas`;
+
+        if (!orphanFiles.length) {
+            orphanNote.textContent = 'Semua berkas PDF di folder pdf/ sudah dipakai oleh data tugas.';
+            orphanList.innerHTML = '';
+            return;
+        }
+
+        orphanNote.textContent = 'Berkas berikut tidak dipakai oleh entri mana pun. Hapus hanya jika Anda yakin.';
+        orphanList.innerHTML = orphanFiles.map((name) => `
+            <li class="orphan-item">
+                <span class="file-name" title="${esc(name)}">${esc(name)}</span>
+                <button class="btn btn-danger btn-sm" type="button" data-orphan="${esc(name)}">Hapus</button>
+            </li>`).join('');
+    }
+
+    async function scanOrphans() {
+        if (!pdfDir) {
+            notify('Hubungkan folder proyek dulu untuk memeriksa folder pdf/.', true);
+            return;
+        }
+
+        try {
+            const found = [];
+            for await (const [name, handle] of pdfDir.entries()) {
+                if (handle.kind === 'file' && /\.pdf$/i.test(name)) found.push(name);
+            }
+
+            const referenced = new Set(entries.map((entry) => entry.pdf).filter(Boolean));
+            orphanFiles = found.filter((name) => !referenced.has(name)).sort();
+            renderOrphans();
+            notify(orphanFiles.length
+                ? `${orphanFiles.length} berkas di pdf/ belum dipakai.`
+                : 'Tidak ada berkas yatim.');
+        } catch (error) {
+            notify('Gagal membaca folder pdf/: ' + (error && error.message ? error.message : 'kesalahan'), true);
+        }
+    }
+
+    async function deleteOrphan(name) {
+        if (!window.confirm(`Hapus berkas "${name}" dari folder pdf/?`)) return;
+
+        try {
+            await pdfDir.removeEntry(name);
+            orphanFiles = orphanFiles.filter((item) => item !== name);
+            renderOrphans();
+            notify(`Berkas ${name} dihapus dari pdf/.`);
+        } catch (error) {
+            notify('Gagal menghapus berkas: ' + (error && error.message ? error.message : 'kesalahan'), true);
+        }
     }
 
     /* ============================================================
@@ -548,12 +657,24 @@
         renderTable();
     }
 
-    function handleFile(file) {
+    async function handleFile(file) {
         if (!file) return;
 
-        const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
-        if (!isPdf) {
+        const looksPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+        if (!looksPdf) {
             formError.textContent = 'Berkas harus berformat PDF.';
+            return;
+        }
+
+        let header = '';
+        try {
+            header = await file.slice(0, 1024).text();
+        } catch (error) {
+            header = '';
+        }
+
+        if (!header.includes('%PDF-')) {
+            formError.textContent = 'Isi berkas bukan PDF yang valid.';
             return;
         }
 
@@ -570,22 +691,44 @@
         }
     }
 
-    async function writePdf(file, name) {
-        let exists = true;
+    async function fileExists(name) {
         try {
             await pdfDir.getFileHandle(name);
+            return true;
         } catch (error) {
-            exists = false;
+            return false;
         }
+    }
 
-        if (exists && !window.confirm(`Berkas "${name}" sudah ada di folder pdf/. Timpa?`)) {
+    async function writeBlob(name, blob) {
+        const handle = await pdfDir.getFileHandle(name, { create: true });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }
+
+    async function writePdf(file, name) {
+        if (await fileExists(name) && !window.confirm(`Berkas "${name}" sudah ada di folder pdf/. Timpa?`)) {
             return false;
         }
 
-        const handle = await pdfDir.getFileHandle(name, { create: true });
-        const writable = await handle.createWritable();
-        await writable.write(file);
-        await writable.close();
+        await writeBlob(name, file);
+        return true;
+    }
+
+    async function movePdf(previousName, nextName) {
+        if (!pdfDir || !previousName || !nextName || previousName === nextName) return true;
+        if (!(await fileExists(previousName))) return true;
+        if (await fileExists(nextName)) return true;
+
+        if (!window.confirm(`Pindahkan berkas "${previousName}" menjadi "${nextName}"?`)) {
+            return false;
+        }
+
+        const handle = await pdfDir.getFileHandle(previousName);
+        const file = await handle.getFile();
+        await writeBlob(nextName, file);
+        await pdfDir.removeEntry(previousName);
         return true;
     }
 
@@ -620,6 +763,10 @@
             return;
         }
 
+        const previous = editingWeek !== null
+            ? entries.find((item) => item.week === editingWeek)
+            : null;
+
         if (pendingFile) {
             if (!pdfDir) {
                 formError.textContent = 'Hubungkan folder proyek dulu agar PDF bisa disimpan ke folder pdf/.';
@@ -632,6 +779,18 @@
                 if (!written) return;
             } catch (error) {
                 formError.textContent = 'Gagal menyimpan PDF: ' + (error && error.message ? error.message : 'kesalahan tidak diketahui');
+                return;
+            }
+        } else if (previous && previous.pdf && pdf) {
+            // Nama berkas diubah tanpa mengunggah PDF baru: pindahkan berkas lamanya.
+            try {
+                const moved = await movePdf(previous.pdf, pdf);
+                if (!moved) {
+                    formError.textContent = 'Penyimpanan dibatalkan. Nama berkas tidak diubah.';
+                    return;
+                }
+            } catch (error) {
+                formError.textContent = 'Gagal memindahkan berkas: ' + (error && error.message ? error.message : 'kesalahan tidak diketahui');
                 return;
             }
         }
@@ -648,8 +807,10 @@
 
         entries.sort((a, b) => a.week - b.week);
         await checkAllFiles();
+        hideOrphans();
         resetForm();
-        notify(`Minggu ${week} masuk ke daftar. Klik "Simpan data/tugas.js" untuk menulis ke file.`);
+        setDirty(true);
+        notify(`Minggu ${week} masuk ke daftar. Klik "Simpan data/tugas.js" atau tekan Ctrl+S untuk menulis ke file.`);
     }
 
     /* ============================================================
@@ -679,6 +840,21 @@
         notify('tugas.js diunduh. Timpa file data/tugas.js dengan hasil unduhan ini.');
     }
 
+    async function backupDataFile() {
+        try {
+            const current = await dataDir.getFileHandle('tugas.js');
+            const text = await (await current.getFile()).text();
+            if (!text.trim()) return;
+
+            const backup = await dataDir.getFileHandle('tugas.backup.js', { create: true });
+            const writable = await backup.createWritable();
+            await writable.write(text);
+            await writable.close();
+        } catch (error) {
+            /* file belum ada — tidak ada yang perlu dicadangkan */
+        }
+    }
+
     async function saveDataFile() {
         const content = buildFileContent();
 
@@ -688,11 +864,13 @@
         }
 
         try {
+            await backupDataFile();
             const handle = await dataDir.getFileHandle('tugas.js', { create: true });
             const writable = await handle.createWritable();
             await writable.write(content);
             await writable.close();
-            notify('data/tugas.js berhasil disimpan. Muat ulang dashboard untuk melihat perubahan.');
+            setDirty(false);
+            notify('data/tugas.js berhasil disimpan (cadangan: tugas.backup.js). Muat ulang dashboard untuk melihat perubahan.');
         } catch (error) {
             notify('Gagal menulis data/tugas.js: ' + (error && error.message ? error.message : 'kesalahan tidak diketahui'), true);
         }
@@ -772,8 +950,32 @@
     $('saveFileBtn').addEventListener('click', saveDataFile);
     $('downloadBtn').addEventListener('click', () => downloadFile(buildFileContent()));
     $('copyBtn').addEventListener('click', copyJson);
+    scanBtn.addEventListener('click', scanOrphans);
+
+    orphanList.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-orphan]');
+        if (button) deleteOrphan(button.dataset.orphan);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 's') return;
+        if (adminView.hidden) return;
+        event.preventDefault();
+        saveDataFile();
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+        if (!dirty) return;
+        event.preventDefault();
+        event.returnValue = '';
+    });
 
     $('logoutBtn').addEventListener('click', () => {
+        if (dirty && !window.confirm('Ada perubahan yang belum disimpan ke data/tugas.js. Keluar tetap?')) {
+            return;
+        }
+
+        setDirty(false);
         store.remove(SESSION_KEY);
         window.location.reload();
     });
