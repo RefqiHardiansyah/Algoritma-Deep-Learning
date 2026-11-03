@@ -6,6 +6,32 @@
   publish = "."
   command = ""
 
+# Panel admin hanya untuk dipakai lokal (butuh akses folder di komputer).
+# Di situs publik halaman ini diblokir total supaya tidak bisa diakses siapa pun.
+[[redirects]]
+  from = "/admin.html"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/admin"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/admin/"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/admin.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Link lama seperti /minggu-04/ atau /minggu-04/index.html tetap hidup
 # dan diarahkan ke viewer dinamis. Aturan ini tidak menyentuh file PDF,
 # karena hanya cocok untuk path yang berakhiran "/" atau "/index.html".

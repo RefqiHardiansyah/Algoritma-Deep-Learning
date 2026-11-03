@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Algoritma Deep Learning</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236366f1'/%3E%3Ctext x='32' y='44' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EDL%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('adl-theme');
+                if (!theme) {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.dataset.theme = theme;
+            } catch (e) { }
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="admin-body">
+
+    <!-- ============ Layar login ============ -->
+    <section class="login-screen" id="loginView">
+        <form class="login-card" id="loginForm" novalidate>
+            <span class="login-eyebrow">Area terbatas</span>
+            <h1>Panel Admin</h1>
+            <p>Kelola data tugas dan unggahan PDF.</p>
+
+            <label class="field">
+                <span>ID Admin</span>
+                <input id="loginUser" name="username" type="text" autocomplete="username" required>
+            </label>
+
+            <label class="field">
+                <span>Kata sandi</span>
+                <input id="loginPass" name="password" type="password" autocomplete="current-password" required>
+            </label>
+
+            <p class="form-error" id="loginError" role="alert"></p>
+
+            <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Masuk</button>
+
+            <p class="login-note">Halaman ini hanya berjalan di perangkat Anda. Di situs publik, halaman
+                admin diblokir dan tidak dapat diakses.</p>
+        </form>
+    </section>
+
+    <!-- ============ Aplikasi admin ============ -->
+    <section class="admin-app" id="adminView" hidden>
+        <header class="admin-topbar">
+            <div class="admin-title">
+                <h1>Panel Admin</h1>
+                <p>Algoritma Deep Learning &middot; Refqi Hardiansyah</p>
+            </div>
+
+            <div class="admin-tools">
+                <span class="status-chip" id="folderStatus">Folder belum terhubung</span>
+                <button class="btn btn-ghost" type="button" id="connectBtn">Pilih folder proyek</button>
+                <button class="btn btn-ghost btn-icon" type="button" id="themeToggle" aria-pressed="false"
+                    aria-label="Aktifkan tema gelap">
+                    <span class="theme-icon" aria-hidden="true">&#127769;</span>
+                </button>
+                <button class="btn btn-ghost" type="button" id="logoutBtn">Keluar</button>
+            </div>
+        </header>
+
+        <p class="admin-note" id="folderNote">
+            Pilih folder proyek (folder yang berisi <code>pdf/</code> dan <code>data/</code>) agar PDF dan
+            <code>data/tugas.js</code> bisa ditulis otomatis. Jika browser menolak memilih folder saat file dibuka
+            langsung, jalankan <code>python -m http.server</code> di folder proyek lalu buka
+            <code>http://localhost:8000/admin.html</code>.
+        </p>
+
+        <div class="admin-grid">
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Data tugas</h2>
+                    <span class="status-chip" id="statsChip">0 entri</span>
+                </div>
+                <div class="table-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Minggu</th>
+                                <th>Tugas</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataRows"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2 id="formTitle">Tambah tugas</h2>
+                    <button class="btn btn-ghost btn-sm" type="button" id="newBtn">+ Baru</button>
+                </div>
+
+                <form class="panel-body" id="entryForm" novalidate>
+                    <label class="field">
+                        <span>Minggu ke-</span>
+                        <input id="weekInput" type="number" min="1" max="99" step="1" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Judul / topik</span>
+                        <input id="judulInput" type="text" placeholder="Contoh: Klasifikasi Citra MNIST" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Nama berkas PDF</span>
+                        <input id="pdfName" type="text" placeholder="minggu-05-topik.pdf">
+                    </label>
+
+                    <label class="dropzone" id="dropzone">
+                        <input id="fileInput" type="file" accept="application/pdf,.pdf">
+                        <strong>Seret PDF ke sini</strong>
+                        <small>atau klik untuk memilih berkas</small>
+                    </label>
+
+                    <span class="file-pill" id="filePill" hidden></span>
+
+                    <p class="form-error" id="formError" role="alert"></p>
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit" id="saveEntryBtn">Simpan entri</button>
+                        <button class="btn btn-ghost" type="button" id="cancelBtn" hidden>Batal</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="admin-savebar">
+            <span class="hint" id="saveHint" role="status" aria-live="polite">
+                Perubahan masih di memori. Simpan agar dashboard ikut berubah.
+            </span>
+            <div class="actions">
+                <button class="btn btn-ghost" type="button" id="downloadBtn">Unduh tugas.js</button>
+                <button class="btn btn-ghost" type="button" id="copyBtn">Salin JSON</button>
+                <button class="btn btn-primary" type="button" id="saveFileBtn">Simpan data/tugas.js</button>
+            </div>
+        </div>
+    </section>
+
+    <noscript>
+        <div class="login-screen">
+            <div class="login-card">
+                <h1>JavaScript diperlukan</h1>
+                <p>Aktifkan JavaScript untuk menggunakan panel admin.</p>
+            </div>
+        </div>
+    </noscript>
+
+    <script src="data/tugas.js"></script>
+    <script src="theme.js"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>

@@ -69,8 +69,8 @@
         return;
     }
 
-    const folder = `minggu-${String(task.week).padStart(2, '0')}`;
-    const src = `${folder}/${encodeURIComponent(task.pdf)}`;
+    // Semua PDF berada di satu folder: pdf/
+    const src = `pdf/${encodeURIComponent(task.pdf)}`;
 
     if (pdfFrame) {
         pdfFrame.addEventListener('load', () => {
