@@ -6,11 +6,7 @@
    - Field `pdf` hanya berisi NAMA FILE (tanpa folder).
    - Field `pdf` kosong / tidak ditulis = tugas belum tersedia.
 
-   Cara menambah tugas:
-   - Cara mudah: buka admin.html (Chrome/Edge), login, lalu tambah entri
-     dan seret PDF-nya. Panel admin akan menulis file ini otomatis.
-   - Cara manual: taruh PDF di folder pdf/, lalu tambahkan satu baris
-     di array di bawah ini.
+   File ini dihasilkan oleh admin.html dan boleh diedit manual.
    ============================================================ */
 
 window.TUGAS = [
@@ -19,7 +15,7 @@ window.TUGAS = [
     { week: 3, judul: 'Tugas Minggu 3' },
     { week: 4, judul: 'Klasifikasi Citra MNIST', pdf: 'minggu-04-klasifikasi-citra-mnist.pdf' },
     { week: 5, judul: 'Tugas Minggu 5' },
-    { week: 6, judul: 'Tugas Minggu 6' },
+    { week: 6, judul: 'Tugas Minggu 6', pdf: 'minggu-06-tugas-minggu-6.pdf' },
     { week: 7, judul: 'Tugas Minggu 7' },
     { week: 8, judul: 'Tugas Minggu 8' },
     { week: 9, judul: 'Tugas Minggu 9' },
