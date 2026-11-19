@@ -26,64 +26,122 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <a class="skip-link" href="#pdfCard">Lewati ke pembaca PDF</a>
+<body class="app-shell">
+    <a class="skip-link" href="#main">Lewati ke konten</a>
 
-    <main class="viewer" id="main">
-        <div class="pdf-header-card">
-            <div class="pdf-title-area">
-                <nav class="breadcrumb" aria-label="Breadcrumb">
-                    <a href="index.html">Dashboard</a>
-                    <span aria-hidden="true">/</span>
-                    <span id="crumbWeek">Minggu</span>
-                </nav>
-                <h1 id="weekTitle">Memuat tugas&hellip;</h1>
-                <p>Mata Kuliah Algoritma Deep Learning</p>
-            </div>
+    <header class="app-header" id="appHeader">
+        <div class="header-inner">
+            <button class="icon-btn nav-toggle" id="sidebarToggle" type="button" aria-controls="sidebar"
+                aria-expanded="false" aria-label="Buka menu navigasi">
+                <span aria-hidden="true">&#9776;</span>
+            </button>
 
-            <div class="pdf-actions">
-                <a class="btn btn-ghost btn-icon" id="prevBtn" aria-label="Tugas sebelumnya"
-                    title="Tugas sebelumnya" hidden>&larr;</a>
-                <a class="btn btn-ghost btn-icon" id="nextBtn" aria-label="Tugas berikutnya"
-                    title="Tugas berikutnya" hidden>&rarr;</a>
-                <button class="btn btn-ghost btn-icon" id="themeToggle" type="button" aria-pressed="false"
-                    aria-label="Aktifkan tema gelap">
-                    <span class="theme-icon" aria-hidden="true">&#127769;</span>
-                </button>
-                <a href="index.html" class="btn btn-ghost">&larr; Kembali</a>
-                <a href="#" class="btn btn-ghost" id="openBtn" target="_blank" rel="noopener">Buka tab baru</a>
-                <a href="#" class="btn btn-primary" id="downloadBtn" download>Unduh PDF</a>
-            </div>
+            <a class="brand" href="index.html">
+                <span class="brand-mark" aria-hidden="true">DL</span>
+                <span class="brand-text">
+                    <span class="brand-eyebrow">4IA08 &middot; Gunadarma</span>
+                    <span class="brand-name">Algoritma Deep Learning</span>
+                </span>
+            </a>
+
+            <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"
+                aria-label="Aktifkan tema gelap">
+                <span class="theme-icon" aria-hidden="true">&#127769;</span>
+            </button>
         </div>
+    </header>
 
-        <div class="pdf-embed-card" id="pdfCard">
-            <div class="pdf-embed-wrapper">
-                <div class="pdf-loading" id="pdfLoading">
-                    <span class="spinner" aria-hidden="true"></span>
-                    <span>Memuat laporan&hellip;</span>
+    <aside class="sidebar" id="sidebar" aria-label="Navigasi tugas">
+        <div class="sidebar-fixed">
+            <section class="profile-card" aria-label="Identitas mahasiswa">
+                <p class="profile-name">Refqi Hardiansyah</p>
+                <ul class="profile-list">
+                    <li><span class="label">NIM</span><span class="value">51423263</span></li>
+                    <li><span class="label">Kelas</span><span class="value">4IA08</span></li>
+                    <li><span class="label">Kampus</span><span class="value">Universitas Gunadarma</span></li>
+                </ul>
+            </section>
+
+            <div class="progress-block">
+                <div class="progress-meta">
+                    <span>Progres pengumpulan</span>
+                    <strong id="progressLabel">0 dari 14 tugas selesai</strong>
                 </div>
-                <iframe id="pdfFrame" title="Pembaca PDF tugas" hidden></iframe>
+                <div class="progress-track" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="14"
+                    aria-valuenow="0" aria-label="Progres pengumpulan tugas">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
             </div>
-            <p class="pdf-hint">PDF tidak muncul di perangkat ini? Gunakan tombol
-                <strong>Buka tab baru</strong> atau <strong>Unduh PDF</strong>.</p>
         </div>
 
-        <div class="empty-state" id="emptyState" hidden></div>
+        <nav class="week-nav" aria-label="Daftar minggu">
+            <h2 class="sidebar-title">Daftar minggu</h2>
+            <ul class="week-list" id="weekNavList">
+                <!-- Diisi oleh nav.js -->
+            </ul>
+        </nav>
 
-        <noscript>
-            <div class="empty-state">
-                <h2>JavaScript diperlukan</h2>
-                <p>Aktifkan JavaScript untuk menampilkan laporan, atau kembali ke
-                    <a href="index.html">dashboard</a>.</p>
+        <div class="sidebar-foot">
+            <a id="prevBtn" aria-label="Tugas sebelumnya" title="Tugas sebelumnya" hidden>&larr;
+                <span>Minggu sebelumnya</span></a>
+            <a id="nextBtn" aria-label="Tugas berikutnya" title="Tugas berikutnya" hidden>
+                <span>Minggu berikutnya</span> &rarr;</a>
+            <a href="index.html">Dashboard</a>
+        </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+    <main class="app-main" id="main">
+        <div class="viewer">
+            <div class="pdf-header-card">
+                <div class="pdf-title-area">
+                    <nav class="breadcrumb" aria-label="Breadcrumb">
+                        <a href="index.html">Dashboard</a>
+                        <span aria-hidden="true">/</span>
+                        <span id="crumbWeek">Minggu</span>
+                    </nav>
+                    <h1 id="weekTitle">Memuat tugas&hellip;</h1>
+                    <p>Mata Kuliah Algoritma Deep Learning</p>
+                </div>
+
+                <div class="pdf-actions">
+                    <a href="index.html" class="btn btn-ghost">&larr; Kembali</a>
+                    <a href="#" class="btn btn-ghost" id="openBtn" target="_blank" rel="noopener">Buka tab baru</a>
+                    <a href="#" class="btn btn-primary" id="downloadBtn" download>Unduh PDF</a>
+                </div>
             </div>
-        </noscript>
+
+            <div class="pdf-embed-card" id="pdfCard">
+                <div class="pdf-embed-wrapper">
+                    <div class="pdf-loading" id="pdfLoading">
+                        <span class="spinner" aria-hidden="true"></span>
+                        <span>Memuat laporan&hellip;</span>
+                    </div>
+                    <iframe id="pdfFrame" title="Pembaca PDF tugas" hidden></iframe>
+                </div>
+                <p class="pdf-hint">PDF tidak muncul di perangkat ini? Gunakan tombol
+                    <strong>Buka tab baru</strong> atau <strong>Unduh PDF</strong>.</p>
+            </div>
+
+            <div class="empty-state" id="emptyState" hidden></div>
+
+            <noscript>
+                <div class="empty-state">
+                    <h2>JavaScript diperlukan</h2>
+                    <p>Aktifkan JavaScript untuk menampilkan laporan, atau kembali ke
+                        <a href="index.html">dashboard</a>.</p>
+                </div>
+            </noscript>
+
+            <footer class="viewer-footer">
+                <p>&copy; 2026 Refqi Hardiansyah &middot; Algoritma Deep Learning</p>
+            </footer>
+        </div>
     </main>
 
-    <footer class="viewer-footer">
-        <p>&copy; 2026 Refqi Hardiansyah &middot; Algoritma Deep Learning</p>
-    </footer>
-
     <script src="data/tugas.js"></script>
+    <script src="nav.js"></script>
     <script src="theme.js"></script>
     <script src="minggu.js"></script>
 </body>

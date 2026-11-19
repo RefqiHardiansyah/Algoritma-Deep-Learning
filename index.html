@@ -29,28 +29,53 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-    <a class="skip-link" href="#main">Lewati ke daftar tugas</a>
+<body class="app-shell">
+    <a class="skip-link" href="#main">Lewati ke konten</a>
 
-    <header class="hero">
-        <div class="container hero-inner">
-            <div class="hero-top">
-                <span class="hero-eyebrow">Algoritma Deep Learning &middot; 4IA08</span>
-                <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"
-                    aria-label="Aktifkan tema gelap">
-                    <span class="theme-icon" aria-hidden="true">&#127769;</span>
-                </button>
+    <header class="app-header" id="appHeader">
+        <div class="header-inner">
+            <button class="icon-btn nav-toggle" id="sidebarToggle" type="button" aria-controls="sidebar"
+                aria-expanded="false" aria-label="Buka menu navigasi">
+                <span aria-hidden="true">&#9776;</span>
+            </button>
+
+            <a class="brand" href="index.html">
+                <span class="brand-mark" aria-hidden="true">DL</span>
+                <span class="brand-text">
+                    <span class="brand-eyebrow">4IA08 &middot; Gunadarma</span>
+                    <span class="brand-name">Algoritma Deep Learning</span>
+                </span>
+            </a>
+
+            <div class="search-bar" role="search">
+                <label class="sr-only" for="searchInput">Cari tugas berdasarkan minggu atau topik</label>
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-3.5-3.5"></path>
+                </svg>
+                <input id="searchInput" type="search" placeholder="Cari minggu atau topik&hellip;" autocomplete="off"
+                    spellcheck="false">
+                <button class="search-clear" id="searchClear" type="button" aria-label="Hapus pencarian"
+                    hidden>&#10005;</button>
             </div>
 
-            <h1>Algoritma Deep Learning</h1>
-            <p class="subtitle">Kumpulan laporan tugas mingguan</p>
+            <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"
+                aria-label="Aktifkan tema gelap">
+                <span class="theme-icon" aria-hidden="true">&#127769;</span>
+            </button>
+        </div>
+    </header>
 
-            <ul class="identity">
-                <li>Refqi Hardiansyah</li>
-                <li>51423263</li>
-                <li>4IA08</li>
-                <li>Universitas Gunadarma</li>
-            </ul>
+    <aside class="sidebar" id="sidebar" aria-label="Navigasi tugas">
+        <div class="sidebar-fixed">
+            <section class="profile-card" aria-label="Identitas mahasiswa">
+                <p class="profile-name">Refqi Hardiansyah</p>
+                <ul class="profile-list">
+                    <li><span class="label">NPM</span><span class="value">51423263</span></li>
+                    <li><span class="label">Kelas</span><span class="value">4IA08</span></li>
+                </ul>
+            </section>
 
             <div class="progress-block">
                 <div class="progress-meta">
@@ -63,61 +88,65 @@
                 </div>
             </div>
 
-            <div class="search-bar">
-                <label class="sr-only" for="searchInput">Cari tugas berdasarkan minggu atau topik</label>
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="m20 20-3.5-3.5"></path>
-                </svg>
-                <input id="searchInput" type="search" placeholder="Cari minggu atau topik&hellip;" autocomplete="off"
-                    spellcheck="false">
-                <button class="search-clear" id="searchClear" type="button" aria-label="Hapus pencarian"
-                    hidden>&#10005;</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="container" id="main">
-        <section class="dashboard-stats" aria-label="Ringkasan progres tugas">
-            <div class="stat-card">
-                <h3>Total Tugas</h3>
-                <p class="stat-value" id="statTotal">14</p>
-            </div>
-            <div class="stat-card">
-                <h3>Selesai</h3>
-                <p class="stat-value" id="statDone">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>Progres</h3>
-                <p class="stat-value" id="statProgress">0%</p>
-            </div>
-        </section>
-
-        <div class="filter-bar">
             <div class="filter-chips" role="group" aria-label="Filter daftar tugas">
                 <button class="chip is-active" type="button" data-filter="all" aria-pressed="true">Semua</button>
                 <button class="chip" type="button" data-filter="done" aria-pressed="false">Selesai</button>
                 <button class="chip" type="button" data-filter="pending" aria-pressed="false">Belum tersedia</button>
             </div>
-            <button class="sort-toggle" type="button" id="sortToggle" aria-pressed="false">
-                <span class="sort-icon" aria-hidden="true">&#8593;</span>
-                <span id="sortLabel">Terlama dulu</span>
-            </button>
         </div>
 
-        <p class="result-info" id="resultInfo" role="status" aria-live="polite"></p>
+        <nav class="week-nav" aria-label="Daftar minggu">
+            <h2 class="sidebar-title">Daftar minggu</h2>
+            <ul class="week-list" id="weekNavList">
+                <!-- Diisi oleh nav.js -->
+            </ul>
+        </nav>
+    </aside>
 
-        <section class="grid-container" id="taskGrid" aria-label="Daftar tugas mingguan">
-            <!-- Kartu dibuat oleh script.js -->
-        </section>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+    <main class="app-main" id="main">
+        <div class="content-inner">
+            <div class="page-intro">
+                <h1>Algoritma Deep Learning</h1>
+                <p class="subtitle">Kumpulan laporan tugas mingguan</p>
+            </div>
+
+            <section class="dashboard-stats" aria-label="Ringkasan progres tugas">
+                <div class="stat-card">
+                    <h3>Total Tugas</h3>
+                    <p class="stat-value" id="statTotal">14</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Selesai</h3>
+                    <p class="stat-value" id="statDone">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Progres</h3>
+                    <p class="stat-value" id="statProgress">0%</p>
+                </div>
+            </section>
+
+            <div class="filter-bar">
+                <p class="result-info" id="resultInfo" role="status" aria-live="polite"></p>
+                <button class="sort-toggle" type="button" id="sortToggle" aria-pressed="false">
+                    <span class="sort-icon" aria-hidden="true">&#8593;</span>
+                    <span id="sortLabel">Terlama dulu</span>
+                </button>
+            </div>
+
+            <section class="grid-container" id="taskGrid" aria-label="Daftar tugas mingguan">
+                <!-- Kartu dibuat oleh script.js -->
+            </section>
+
+            <footer class="site-footer">
+                <p>&copy; 2026 Refqi Hardiansyah &middot; Dibuat untuk tugas mata kuliah Algoritma Deep Learning.</p>
+            </footer>
+        </div>
     </main>
 
-    <footer class="site-footer">
-        <p>&copy; 2026 Refqi Hardiansyah &middot; Dibuat untuk tugas mata kuliah Algoritma Deep Learning.</p>
-    </footer>
-
     <script src="data/tugas.js"></script>
+    <script src="nav.js"></script>
     <script src="theme.js"></script>
     <script src="script.js"></script>
 </body>

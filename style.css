@@ -1,7 +1,7 @@
 /* ============================================================
    Algoritma Deep Learning — Refqi Hardiansyah
    Stylesheet tunggal: dashboard, viewer PDF, dan halaman 404.
-   Struktur: 1) token  2) base  3) hero  4) statistik
+   Struktur: 1) token  2) base  3) shell/header/sidebar  4) statistik
              5) kartu  6) viewer  7) utilitas  8) responsif
    ============================================================ */
 
@@ -69,7 +69,11 @@
 
     --ring: 0 0 0 4px rgb(99 102 241 / .30);
     --ease: cubic-bezier(.22, .61, .36, 1);
-    --maxw: 1120px;
+
+    /* Tata letak aplikasi: header tetap + sidebar kiri */
+    --header-h: 66px;
+    --sidebar-w: 264px;
+    --content-max: 980px;
 }
 
 [data-theme="dark"] {
@@ -171,28 +175,32 @@ button {
     color: #fff;
 }
 
-.container {
-    width: 100%;
-    max-width: var(--maxw);
-    margin-inline: auto;
-    padding-inline: clamp(16px, 4vw, 28px);
+/* ---------- 3. Shell, header tetap, sidebar ---------- */
+body.app-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    grid-template-areas:
+        "header header"
+        "sidebar main";
+    align-items: start;
+    min-height: 100dvh;
 }
 
-/* ---------- 3. Hero ---------- */
-.hero {
-    position: relative;
+.app-header {
+    grid-area: header;
+    position: sticky;
+    top: 0;
+    z-index: 50;
     overflow: hidden;
-    padding: clamp(24px, 4vw, 46px) 0 clamp(62px, 9vw, 92px);
     color: #fff;
     background:
-        radial-gradient(900px 420px at 10% -10%, rgb(255 255 255 / .20), transparent 62%),
-        radial-gradient(720px 380px at 90% 0%, rgb(56 189 248 / .26), transparent 64%),
+        radial-gradient(900px 240px at 10% -40%, rgb(255 255 255 / .20), transparent 62%),
+        radial-gradient(720px 260px at 90% 0%, rgb(56 189 248 / .24), transparent 64%),
         linear-gradient(135deg, var(--hero-from), var(--hero-via) 55%, var(--hero-to));
-    border-end-start-radius: clamp(22px, 4vw, 42px);
-    border-end-end-radius: clamp(22px, 4vw, 42px);
+    border-bottom: 1px solid rgb(255 255 255 / .14);
 }
 
-.hero::after {
+.app-header::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -200,31 +208,100 @@ button {
     background-size: 22px 22px;
     opacity: .10;
     pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 72%);
-    mask-image: linear-gradient(to bottom, #000, transparent 72%);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 78%);
+    mask-image: linear-gradient(to bottom, #000, transparent 78%);
 }
 
-.hero-inner {
+.header-inner {
     position: relative;
     z-index: 1;
-    text-align: center;
-}
-
-.hero-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: clamp(18px, 3vw, 30px);
-    text-align: left;
+    gap: 14px;
+    min-height: 64px;
+    padding: 10px clamp(16px, 3vw, 28px);
 }
 
-.hero-eyebrow {
-    font-size: .74rem;
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    border: 1px solid rgb(255 255 255 / .35);
+    border-radius: 11px;
+    background: rgb(255 255 255 / .16);
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.brand-eyebrow {
+    font-size: .64rem;
     font-weight: 600;
-    letter-spacing: .16em;
+    letter-spacing: .14em;
     text-transform: uppercase;
-    opacity: .88;
+    opacity: .82;
+}
+
+.brand-name {
+    font-size: .98rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    border: 1px solid rgb(255 255 255 / .35);
+    border-radius: 12px;
+    background: rgb(255 255 255 / .14);
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background-color .25s var(--ease), border-color .25s var(--ease);
+}
+
+.icon-btn:hover {
+    background: rgb(255 255 255 / .26);
+    border-color: rgb(255 255 255 / .55);
+}
+
+.nav-toggle {
+    display: none;
+}
+
+.nav-toggle:focus-visible,
+.theme-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
 }
 
 .theme-toggle {
@@ -258,58 +335,73 @@ button {
     line-height: 1;
 }
 
-.hero h1 {
-    font-size: clamp(1.9rem, 5.2vw, 3rem);
+.page-intro {
+    margin-bottom: clamp(18px, 3vw, 26px);
+}
+
+.page-intro h1 {
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
     font-weight: 800;
-    line-height: 1.12;
+    line-height: 1.15;
     letter-spacing: -.025em;
 }
 
-.subtitle {
-    margin-top: 10px;
-    font-size: clamp(.95rem, 2vw, 1.08rem);
-    opacity: .92;
+.page-intro .subtitle {
+    margin-top: 6px;
+    font-size: .95rem;
+    color: var(--muted);
 }
 
-.identity {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
+/* Profil & progres di sidebar */
+.profile-card {
+    padding: 14px 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
 }
 
-.identity li {
-    padding: 5px 13px;
-    border: 1px solid rgb(255 255 255 / .28);
-    border-radius: var(--radius-pill);
-    background: rgb(255 255 255 / .14);
-    font-size: .8rem;
-    font-weight: 500;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-}
-
-.identity li:first-child {
+.profile-name {
+    font-size: .92rem;
     font-weight: 700;
-    background: rgb(255 255 255 / .24);
+    letter-spacing: -.01em;
+}
+
+.profile-list {
+    display: grid;
+    gap: 3px;
+    margin-top: 8px;
+    font-size: .76rem;
+}
+
+.profile-list li {
+    display: flex;
+    gap: 8px;
+}
+
+.profile-list .label {
+    flex: 0 0 46px;
+    color: var(--muted);
+}
+
+.profile-list .value {
+    color: var(--text-soft);
+    font-weight: 500;
 }
 
 .progress-block {
-    max-width: 430px;
-    margin: 26px auto 0;
+    padding: 0 2px;
     text-align: left;
 }
 
 .progress-meta {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
     margin-bottom: 8px;
-    font-size: .8rem;
-    font-weight: 500;
-    opacity: .94;
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--text-soft);
 }
 
 .progress-meta strong {
@@ -317,9 +409,9 @@ button {
 }
 
 .progress-track {
-    height: 10px;
+    height: 8px;
     border-radius: var(--radius-pill);
-    background: rgb(255 255 255 / .22);
+    background: var(--border);
     overflow: hidden;
 }
 
@@ -327,28 +419,30 @@ button {
     width: 0;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, #ffffff, #ddd6fe);
+    background: linear-gradient(90deg, var(--brand), var(--accent));
     transition: width .9s var(--ease);
 }
 
 .search-bar {
     position: relative;
-    max-width: 540px;
-    margin: 26px auto 0;
+    flex: 1 1 auto;
+    width: clamp(200px, 26vw, 340px);
+    max-width: 340px;
     text-align: left;
 }
 
 .search-bar input {
+    display: block;
     width: 100%;
-    height: 52px;
-    padding: 0 48px;
+    height: 42px;
+    padding: 0 42px;
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: var(--surface);
     color: var(--text);
     font: inherit;
-    font-size: .96rem;
-    box-shadow: 0 14px 34px -18px rgb(15 23 42 / .65);
+    font-size: .88rem;
+    box-shadow: 0 10px 24px -16px rgb(15 23 42 / .65);
     transition: border-color .25s var(--ease), box-shadow .25s var(--ease);
     -webkit-appearance: none;
     appearance: none;
@@ -365,15 +459,15 @@ button {
 .search-bar input:focus {
     outline: none;
     border-color: var(--brand);
-    box-shadow: 0 14px 34px -18px rgb(15 23 42 / .55), var(--ring);
+    box-shadow: 0 10px 24px -16px rgb(15 23 42 / .55), var(--ring);
 }
 
 .search-icon {
     position: absolute;
     top: 50%;
-    left: 18px;
-    width: 18px;
-    height: 18px;
+    left: 14px;
+    width: 17px;
+    height: 17px;
     color: var(--muted);
     transform: translateY(-50%);
     pointer-events: none;
@@ -382,12 +476,12 @@ button {
 .search-clear {
     position: absolute;
     top: 50%;
-    right: 9px;
+    right: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border: 0;
     border-radius: 50%;
     background: var(--surface-2);
@@ -403,15 +497,196 @@ button {
     color: var(--brand-strong);
 }
 
+/* Sidebar navigasi */
+.sidebar {
+    grid-area: sidebar;
+    position: sticky;
+    top: var(--header-h);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: var(--sidebar-w);
+    max-height: calc(100dvh - var(--header-h));
+    padding: 18px 16px;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+}
+
+.sidebar-fixed {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.sidebar .filter-chips {
+    flex-direction: column;
+    padding: 6px;
+    border-radius: var(--radius-md);
+}
+
+.sidebar .chip {
+    width: 100%;
+    justify-content: flex-start;
+    min-height: 32px;
+    padding: 0 12px;
+    text-align: left;
+    font-size: .78rem;
+}
+
+.sidebar-title {
+    margin: 10px 0 6px 2px;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.week-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.week-list {
+    display: grid;
+    gap: 2px;
+}
+
+.week-link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 9px;
+    color: var(--text-soft);
+    font-size: .78rem;
+    text-decoration: none;
+    transition: background-color .2s var(--ease), color .2s var(--ease);
+}
+
+a.week-link:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.week-no {
+    font-variant-numeric: tabular-nums;
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.week-name {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.week-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+}
+
+.week-link.is-done .week-dot {
+    background: var(--ok);
+}
+
+.week-link.is-active {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+    font-weight: 600;
+}
+
+.week-link.is-active .week-no {
+    color: var(--brand-strong);
+}
+
+.week-link[aria-disabled="true"] {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.week-link[aria-disabled="true"]:hover {
+    background: transparent;
+}
+
+.week-empty {
+    padding: 8px;
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.sidebar-foot {
+    flex: 0 0 auto;
+    display: grid;
+    gap: 2px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: .76rem;
+}
+
+.sidebar-foot a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 9px;
+    color: var(--text-soft);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sidebar-foot a:hover {
+    background: var(--surface-2);
+    color: var(--brand-strong);
+}
+
+#nextBtn {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+/* Area konten di kanan sidebar */
+.app-main {
+    grid-area: main;
+    min-width: 0;
+    min-height: calc(100dvh - var(--header-h));
+    padding-block: clamp(20px, 3vw, 32px) 0;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+.content-inner {
+    width: 100%;
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding-inline: clamp(18px, 3vw, 32px);
+}
+
 /* ---------- 4. Statistik ---------- */
 .dashboard-stats {
     position: relative;
     z-index: 2;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px;
-    max-width: 700px;
-    margin: -48px auto 30px;
+    margin: 0 0 28px;
 }
 
 .stat-card {
@@ -449,12 +724,16 @@ button {
     display: none;
 }
 
+.filter-bar .result-info {
+    margin: 0 auto 0 0;
+}
+
 /* Filter status & urutan */
 .filter-bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 12px;
     margin-bottom: 16px;
 }
@@ -830,14 +1109,13 @@ button {
 /* ---------- 6. Viewer PDF ---------- */
 .viewer {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1180px;
     margin-inline: auto;
-    padding: clamp(16px, 3vw, 30px) clamp(14px, 3vw, 24px) 40px;
+    padding: 0 clamp(18px, 3vw, 32px) 40px;
 }
 
 .pdf-header-card {
-    position: sticky;
-    top: 12px;
+    position: static;
     z-index: 20;
     display: flex;
     flex-wrap: wrap;
@@ -904,7 +1182,7 @@ button {
 
 .pdf-embed-wrapper {
     position: relative;
-    height: clamp(420px, calc(100dvh - 250px), 1000px);
+    height: clamp(360px, calc(100dvh - var(--header-h) - 210px), 1000px);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: var(--surface-2);
@@ -1059,11 +1337,59 @@ button {
 }
 
 /* ---------- 9. Responsif ---------- */
-@media (max-width: 680px) {
-    .pdf-header-card {
-        position: static;
+@media (max-width: 1024px) {
+    body.app-shell {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "main";
     }
 
+    .nav-toggle {
+        display: inline-flex;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: var(--header-h);
+        right: auto;
+        bottom: 0;
+        left: 0;
+        z-index: 60;
+        width: min(86vw, 320px);
+        height: calc(100dvh - var(--header-h));
+        max-height: none;
+        border-right: 1px solid var(--border);
+        box-shadow: var(--shadow-3);
+        transform: translateX(-100%);
+        transition: transform .28s var(--ease), visibility .28s;
+        visibility: hidden;
+    }
+
+    body.nav-open .sidebar {
+        transform: none;
+        visibility: visible;
+    }
+
+    body.nav-open {
+        overflow: hidden;
+    }
+
+    .sidebar-backdrop {
+        position: fixed;
+        top: var(--header-h);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 55;
+        display: block;
+        background: rgb(8 12 24 / .55);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+    }
+}
+
+@media (max-width: 680px) {
     .pdf-title-area {
         width: 100%;
     }
@@ -1077,23 +1403,37 @@ button {
     }
 
     .pdf-embed-wrapper {
-        height: clamp(360px, calc(100dvh - 330px), 900px);
+        height: clamp(320px, calc(100dvh - var(--header-h) - 260px), 900px);
+    }
+}
+
+@media (max-width: 640px) {
+    .header-inner {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    .brand {
+        flex: 1 1 auto;
+    }
+
+    .search-bar {
+        order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: none;
     }
 }
 
 @media (max-width: 480px) {
-    .dashboard-stats {
-        margin-top: -40px;
-    }
-
     .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
 
-    .hero-top {
-        margin-bottom: 14px;
+    .brand-eyebrow {
+        display: none;
     }
 }
 
@@ -1111,14 +1451,27 @@ button {
 }
 
 @media print {
-    .hero,
+    .app-header,
+    .sidebar,
+    .sidebar-backdrop,
+    .nav-toggle,
     .dashboard-stats,
     .search-bar,
+    .filter-bar,
     .pdf-actions,
     .site-footer,
     .viewer-footer,
     .skip-link {
         display: none !important;
+    }
+
+    body.app-shell {
+        display: block;
+    }
+
+    .app-main {
+        padding: 0;
+        min-height: 0;
     }
 
     .pdf-header-card {
